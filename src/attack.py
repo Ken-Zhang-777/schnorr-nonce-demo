@@ -9,7 +9,6 @@ from schnorr_core import hash_to_int, N
 def recover_key(R_hex, pub_hex, msg1_bytes, msg2_bytes, s1_hex, s2_hex):
     """
     This is the hacker logic!
-    Math explanation:
     s1 = k + e1*x
     s2 = k + e2*x
     
