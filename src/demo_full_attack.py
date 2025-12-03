@@ -9,9 +9,7 @@ from attack import recover_key
 from coincurve import PrivateKey
 
 def main():
-    print("==================================================")
-    print("   SCHNORR NONCE REUSE ATTACK - END TO END DEMO   ")
-    print("==================================================")
+ 
 
     # --- STEP 1: ALICE SETUP ---
     print("\n[1] Alice generate her wallet...")
@@ -91,9 +89,7 @@ def main():
     else:
         print("    [-] Invalid? Logic error somewhere.")
 
-    print("\n==================================================")
-    print("                 DEMO COMPLETE                    ")
-    print("==================================================")
+
 
 if __name__ == "__main__":
     main()
