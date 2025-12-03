@@ -4,7 +4,7 @@ import os
 # setup path again... python path is pain in the ass
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from schnorr_core import sign, verify, N
+from schnorr_core import sign, verify, q
 from attack import recover_key
 from coincurve import PrivateKey
 
@@ -26,38 +26,38 @@ def main():
     print("    Alice Private Key: HIDDEN (we dont know yet!)")
 
     # --- STEP 2: ALICE MAKE MISTAKE ---
-    print("\n[2] Alice sign two transaction with SAME k (oh no...)")
+    print("\n[2] Alice sign two transaction with SAME y (oh no...)")
     
-    # she use this k for everything... bad bad alice
-    FIXED_K = 0x4242424242424242424242424242424242424242424242424242424242424242
+    # she use this y for everything... bad bad alice
+    FIXED_Y = 0x4242424242424242424242424242424242424242424242424242424242424242
     
     msg1 = b"Transfer 1 BTC to Bob"
     msg2 = b"Transfer 5 BTC to Coffee Shop"
     
     print(f"    Signing msg1: {msg1}")
-    (R1, s1) = sign(msg1, alice_priv, k_nonce_int=FIXED_K)
+    (w1, z1) = sign(msg1, alice_priv, y_nonce_int=FIXED_Y)
     
     print(f"    Signing msg2: {msg2}")
-    (R2, s2) = sign(msg2, alice_priv, k_nonce_int=FIXED_K)
+    (w2, z2) = sign(msg2, alice_priv, y_nonce_int=FIXED_Y)
     
     # convert to hex for our attack function
-    R_hex = R1.hex()
-    s1_hex = hex(s1)
-    s2_hex = hex(s2)
+    w_hex = w1.hex()
+    z1_hex = hex(z1)
+    z2_hex = hex(z2)
     
-    print(f"    Public R value: {R_hex}")
+    print(f"    Public w value: {w_hex}")
 
     # --- STEP 3: EVE ATTACK ---
     print("\n[3] Eve see signatures on blockchain and attack!")
     print("    Eve running math magic...")
     
     recovered_priv_int = recover_key(
-        R_hex, 
+        w_hex, 
         alice_pub_hex, 
         msg1, 
         msg2, 
-        s1_hex, 
-        s2_hex
+        z1_hex, 
+        z2_hex
     )
     
     print(f"    Recovered Key: {hex(recovered_priv_int)}")
@@ -74,16 +74,16 @@ def main():
     msg_theft = b"Transfer 10000 BTC to EVE (Hacker)"
     print(f"    Forging signature for: {msg_theft}")
     
-    # Eve sign use STOLEN key!! she dont need k reuse anymore, she is owner now
+    # Eve sign use STOLEN key!! she dont need y reuse anymore, she is owner now
     # she verify with Alice Public Key
-    (R_forge, s_forge) = sign(msg_theft, recovered_priv_int)
+    (w_forge, z_forge) = sign(msg_theft, recovered_priv_int)
     
     print("    Signature created.")
     
     # --- STEP 5: VERIFY ---
     print("\n[5] Network verify the forged transaction...")
     
-    is_valid = verify(msg_theft, alice_pub_bytes, (R_forge, s_forge))
+    is_valid = verify(msg_theft, alice_pub_bytes, (w_forge, z_forge))
     
     if is_valid:
         print(f"    [+] VALID SIGNATURE! The network accept it.")
